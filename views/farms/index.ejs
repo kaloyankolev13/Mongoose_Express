@@ -9,8 +9,8 @@
   <body>
     <h1>All Farms</h1>
     <ul>
-      <% for(let f of farms){ %>
-      <li><%= f.name %> </a></li>
+      <% for(let farm of farms){ %>
+      <li><a href="/farms/<%= farm._id %> "><%= farm.name %> </a></li>
       <% } %>
     </ul>
     <a href="/farms/new ">Create a new farm</a>
