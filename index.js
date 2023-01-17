@@ -1,21 +1,24 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const app = express();
 const path = require('path');
+const mongoose = require('mongoose');
 const methodOverride = require('method-override');
-const port = 3000;
 
 const Product = require('./models/product');
+const Farm = require('./models/farm');
 
-main().catch((err) => console.log(err));
-
-async function main() {
-  mongoose.connect('mongodb://localhost:27017/fruitDB', {
+mongoose
+  .connect('mongodb://localhost:27017/farmStand', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log('MONGO CONNECTION OPEN!!!');
+  })
+  .catch((err) => {
+    console.log('OH NO MONGO CONNECTION ERROR!!!!');
+    console.log(err);
   });
-  console.log('Connected to MongoDB');
-}
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -23,12 +26,35 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
-const categories = ['fruit', 'vegetable', 'dairy', 'other'];
+// Farm Routes
+app.get('/farms', async (req, res) => {
+  const farms = await Farm.find({});
+  res.render('farms/index', { farms });
+});
+
+app.get('/farms/new', (req, res) => {
+  res.render('farms/new');
+});
+
+app.post('/farms', async (req, res) => {
+  console.log(req.body);
+  const newFarm = new Farm(req.body);
+  await newFarm.save();
+  res.redirect('/farms');
+});
+
+// Product Routes
+const categories = ['fruit', 'vegetable', 'dairy'];
 
 app.get('/products', async (req, res) => {
-  const products = await Product.find({});
-  console.log(products);
-  res.render('products/index', { products });
+  const { category } = req.query;
+  if (category) {
+    const products = await Product.find({ category });
+    res.render('products/index', { products, category });
+  } else {
+    const products = await Product.find({});
+    res.render('products/index', { products, category: 'All' });
+  }
 });
 
 app.get('/products/new', (req, res) => {
@@ -38,7 +64,6 @@ app.get('/products/new', (req, res) => {
 app.post('/products', async (req, res) => {
   const newProduct = new Product(req.body);
   await newProduct.save();
-  console.log(newProduct);
   res.redirect(`/products/${newProduct._id}`);
 });
 
@@ -69,6 +94,6 @@ app.delete('/products/:id', async (req, res) => {
   res.redirect('/products');
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(3000, () => {
+  console.log('APP IS LISTENING ON PORT 3000!');
 });
