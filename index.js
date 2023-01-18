@@ -67,6 +67,12 @@ app.post('/farms/:id/products', async (req, res) => {
   res.redirect(`/farms/${id}`);
 });
 
+app.delete('/farms/:id', async (req, res) => {
+  const deleteFarm = await Farm.findByIdAndDelete(req.params.id);
+
+  res.redirect('/farms');
+});
+
 // Product Routes
 const categories = ['fruit', 'vegetable', 'dairy'];
 
