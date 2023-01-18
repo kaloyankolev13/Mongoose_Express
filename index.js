@@ -61,7 +61,7 @@ app.post('/farms/:id/products', async (req, res) => {
   const { name, price, category } = req.body;
   const product = new Product({ name, price, category });
   farm.products.push(product);
-  product.farm = product;
+  product.farm = farm;
   await farm.save();
   await product.save();
   res.redirect(`/farms/${id}`);
@@ -94,7 +94,7 @@ app.post('/products', async (req, res) => {
 app.get('/products/:id', async (req, res) => {
   const { id } = req.params;
   const product = await Product.findById(id).populate('farm', 'name');
-  console.log(product.farm);
+  console.log(product);
   res.render('products/show', { product });
 });
 
